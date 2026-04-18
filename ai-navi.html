@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI活用ナビ｜あなたにぴったりのAIツールを無料診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f5f0;
+  --white: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #6b6860;
+  --green: #2d7a5f;
+  --green-light: #eaf4ef;
+  --green-mid: #c8e8d8;
+  --orange: #e8640a;
+  --orange-light: #fff3eb;
+  --border: #e2ddd5;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; line-height:1.7; }
+
+.header { background:var(--white); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:100; }
+.logo-mark { width:36px; height:36px; background:var(--green); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:20px; }
+.logo-text { font-family:'Shippori Mincho',serif; font-size:18px; font-weight:700; }
+.logo-sub { font-size:12px; color:var(--muted); }
+
+.hero { background:linear-gradient(160deg,#1a4a38 0%,#2d7a5f 60%,#3a9470 100%); color:white; padding:56px 24px 64px; text-align:center; }
+.hero-badge { display:inline-block; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); border-radius:100px; padding:6px 20px; font-size:13px; margin-bottom:20px; }
+.hero h1 { font-family:'Shippori Mincho',serif; font-size:clamp(24px,5vw,40px); font-weight:700; line-height:1.4; margin-bottom:16px; }
+.hero h1 em { font-style:normal; background:linear-gradient(135deg,#ffd580,#ffb340); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero p { font-size:15px; color:rgba(255,255,255,0.85); max-width:480px; margin:0 auto 28px; font-weight:300; }
+.hero-cta { background:var(--orange); color:white; border:none; padding:16px 40px; font-size:16px; font-weight:700; border-radius:100px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; transition:all 0.2s; box-shadow:0 4px 20px rgba(232,100,10,0.4); }
+.hero-cta:hover { transform:translateY(-2px); }
+.hero-note { font-size:12px; color:rgba(255,255,255,0.6); margin-top:12px; }
+
+.trust-bar { background:var(--white); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; justify-content:center; gap:32px; flex-wrap:wrap; }
+.trust-item { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); }
+
+.main { max-width:720px; margin:0 auto; padding:40px 20px 80px; }
+
+.progress-wrap { margin-bottom:32px; }
+.progress-label { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:8px; }
+.progress-bar { height:4px; background:var(--border); border-radius:100px; overflow:hidden; }
+.progress-fill { height:100%; background:var(--green); border-radius:100px; transition:width 0.5s ease; }
+
+.chat-area { display:flex; flex-direction:column; gap:20px; margin-bottom:28px; }
+.bubble-row { display:flex; gap:12px; align-items:flex-start; animation:bubbleIn 0.4s ease; }
+.bubble-row.user { flex-direction:row-reverse; }
+@keyframes bubbleIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.avatar.ai { background:var(--green); }
+.avatar.user { background:var(--orange-light); }
+.bubble { max-width:80%; padding:14px 18px; border-radius:18px; font-size:15px; line-height:1.75; }
+.bubble.ai { background:var(--white); border:1px solid var(--border); border-top-left-radius:4px; box-shadow:var(--shadow); }
+.bubble.user { background:var(--green); color:white; border-top-right-radius:4px; }
+.typing { display:flex; gap:4px; align-items:center; padding:8px 4px; }
+.typing span { width:8px; height:8px; border-radius:50%; background:var(--muted); animation:bounce 1.2s infinite; }
+.typing span:nth-child(2){animation-delay:0.2s} .typing span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+.choices { display:flex; flex-direction:column; gap:10px; }
+.choice-btn { background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:14px 20px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:15px; color:var(--ink); text-align:left; display:flex; align-items:center; gap:12px; transition:all 0.18s; width:100%; }
+.choice-btn:hover { border-color:var(--green); background:var(--green-light); transform:translateX(4px); }
+.choice-icon { font-size:22px; flex-shrink:0; }
+.choice-desc { font-size:12px; color:var(--muted); display:block; margin-top:2px; }
+
+.loading-wrap { display:none; text-align:center; padding:48px 20px; }
+.loading-spinner { width:48px; height:48px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 20px; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text { font-size:15px; color:var(--muted); }
+.loading-sub { font-size:13px; color:var(--muted); margin-top:6px; }
+
+.error-box { background:#fff5f5; border:1px solid #fecaca; border-radius:12px; padding:16px 20px; color:#b91c1c; font-size:14px; margin-top:16px; display:none; }
+
+.result-section { display:none; animation:fadeUp 0.5s ease; }
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.result-header { background:var(--white); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:20px; box-shadow:var(--shadow); }
+.result-label { font-size:12px; color:var(--green); font-weight:700; letter-spacing:1px; margin-bottom:8px; }
+.result-type { font-family:'Shippori Mincho',serif; font-size:24px; font-weight:700; margin-bottom:10px; line-height:1.4; }
+.result-desc { font-size:14px; color:var(--muted); line-height:1.8; }
+.tools-title { font-size:16px; font-weight:700; margin-bottom:14px; }
+
+.tool-card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:14px; box-shadow:var(--shadow); transition:all 0.2s; position:relative; overflow:hidden; }
+.tool-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--green); }
+.tool-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.1); }
+.tool-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.tool-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; background:var(--green-light); flex-shrink:0; }
+.tool-name { font-size:17px; font-weight:700; }
+.tool-tag { font-size:11px; font-weight:700; padding:2px 10px; border-radius:100px; margin-left:auto; }
+.tool-tag.free { background:var(--green-light); color:var(--green); }
+.tool-tag.paid { background:var(--orange-light); color:var(--orange); }
+.tool-desc { font-size:14px; color:var(--muted); margin-bottom:14px; line-height:1.7; }
+.tool-use { background:var(--green-light); border-radius:10px; padding:10px 14px; font-size:13px; color:var(--green); margin-bottom:14px; line-height:1.7; }
+.tool-cta { display:flex; align-items:center; justify-content:center; gap:8px; background:var(--green); color:white; border:none; border-radius:100px; padding:12px 24px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Noto Sans JP',sans-serif; transition:all 0.2s; text-decoration:none; width:100%; }
+.tool-cta:hover { background:#236650; transform:translateY(-1px); }
+.tool-cta.orange { background:var(--orange); }
+.tool-cta.orange:hover { background:#c5560a; }
+
+.section-divider { border:none; border-top:1px solid var(--border); margin:32px 0; }
+.section-title { font-family:'Shippori Mincho',serif; font-size:20px; font-weight:700; margin-bottom:16px; }
+.step-card { display:flex; gap:16px; background:var(--white); border:1px solid var(--border); border-radius:16px; padding:18px 20px; margin-bottom:12px; }
+.step-num { width:32px; height:32px; background:var(--green); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; }
+.step-content h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
+.step-content p { font-size:13px; color:var(--muted); line-height:1.7; }
+
+.reset-btn { background:transparent; border:none; color:var(--muted); font-size:13px; cursor:pointer; text-decoration:underline; display:block; margin:24px auto 0; font-family:'Noto Sans JP',sans-serif; }
+
+@media(max-width:480px){
+  .trust-bar{gap:16px}
+  .bubble{max-width:88%;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-mark">🤖</div>
+  <div>
+    <div class="logo-text">AI活用ナビ</div>
+    <div class="logo-sub">あなたにぴったりのAIを無料診断</div>
+  </div>
+</div>
+
+<div class="hero" id="hero-section">
+  <div class="hero-badge">✨ 完全無料・登録不要</div>
+  <h1>「AIって<em>難しそう</em>…」<br>そう思っていませんか？</h1>
+  <p>3つの質問に答えるだけで、あなたの仕事・生活にぴったりのAIツールをナビゲートします</p>
+  <button class="hero-cta" onclick="startDiagnosis()">無料で診断スタート →</button>
+  <div class="hero-note">📊 所要時間：約2分 ｜ 完全無料・登録不要</div>
+</div>
+
+<div class="trust-bar" id="trust-bar">
+  <div class="trust-item">✅ 登録・会員登録なし</div>
+  <div class="trust-item">✅ 完全無料</div>
+  <div class="trust-item">✅ AIが個別に提案</div>
+</div>
+
+<div class="main" id="main-area" style="display:none;">
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">診断中...</span>
+      <span id="progress-num">0 / 3</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chat-area"></div>
+  <div id="input-area"></div>
+
+  <div class="loading-wrap" id="loading-wrap">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">AIがあなたにぴったりのツールを探しています...</div>
+    <div class="loading-sub">回答内容をもとに個別提案を生成中</div>
+  </div>
+
+  <div class="error-box" id="error-box">
+    申し訳ありません。通信エラーが発生しました。もう一度お試しください。
+  </div>
+
+  <div class="result-section" id="result-section"></div>
+  <button class="reset-btn" id="reset-btn" onclick="resetAll()" style="display:none;">← もう一度診断する</button>
+</div>
+
+<script>
+const questions = [
+  {
+    id:'situation',
+    aiMsg:'こんにちは！AI活用ナビです😊\n\nまず、あなたの状況を教えてください。',
+    choices:[
+      {icon:'🏢',label:'会社員・ビジネスパーソン',desc:'仕事の効率を上げたい',value:'会社員・ビジネスパーソン'},
+      {icon:'🏪',label:'個人事業主・フリーランス',desc:'一人で何でもこなしている',value:'個人事業主・フリーランス'},
+      {icon:'🏠',label:'主婦・主夫・在宅の方',desc:'家事や育児のすき間時間を活用したい',value:'主婦・主夫'},
+      {icon:'🎓',label:'学生・勉強中',desc:'レポートや就活に役立てたい',value:'学生'},
+    ]
+  },
+  {
+    id:'pain',
+    aiMsg:'ありがとうございます！\n\nでは、今一番「面倒だな」「時間がかかるな」と感じることは何ですか？',
+    choices:[
+      {icon:'✍️',label:'文章を書くこと',desc:'メール・報告書・SNS投稿など',value:'文章・ライティング'},
+      {icon:'🔍',label:'情報を調べること',desc:'調査・リサーチに時間がかかる',value:'情報収集・調査'},
+      {icon:'🗂️',label:'アイデア出し・企画',desc:'ゼロから考えるのが大変',value:'アイデア・企画'},
+      {icon:'🌐',label:'英語・外国語',desc:'翻訳や英文メールが苦手',value:'翻訳・語学'},
+    ]
+  },
+  {
+    id:'goal',
+    aiMsg:'なるほど！最後にもう一つ。\n\nAIを使って、まず何を達成したいですか？',
+    choices:[
+      {icon:'⚡',label:'毎日の作業を速くしたい',desc:'同じ時間でもっと多くをこなす',value:'作業効率化'},
+      {icon:'💡',label:'新しいアイデアを生み出したい',desc:'発想力・創造力を広げる',value:'発想・創造'},
+      {icon:'📚',label:'スキルアップ・学習したい',desc:'新しいことを効率よく学ぶ',value:'学習・スキルアップ'},
+      {icon:'💰',label:'副業・収入源を作りたい',desc:'AIを使って稼ぐ力をつける',value:'副業・収入'},
+    ]
+  }
+];
+
+let step=0, answers={}, isAnimating=false;
+
+function startDiagnosis(){
+  document.getElementById('hero-section').style.display='none';
+  document.getElementById('trust-bar').style.display='none';
+  document.getElementById('main-area').style.display='block';
+  showQuestion(0);
+}
+
+function showQuestion(idx){
+  if(idx>=questions.length){showLoading();return;}
+  updateProgress(idx);
+  setTimeout(()=>{
+    addTyping(()=>{
+      addAIBubble(questions[idx].aiMsg);
+      setTimeout(()=>showChoices(questions[idx].choices,idx),300);
+    });
+  },idx===0?100:400);
+}
+
+function addTyping(cb){
+  if(isAnimating)return;
+  isAnimating=true;
+  const area=document.getElementById('chat-area');
+  const row=document.createElement('div');
+  row.className='bubble-row';
+  row.innerHTML='<div class="avatar ai">🤖</div><div class="bubble ai"><div class="typing"><span></span><span></span><span></span></div></div>';
+  area.appendChild(row);
+  row.scrollIntoView({behavior:'smooth',block:'end'});
+  setTimeout(()=>{area.removeChild(row);isAnimating=false;cb();},800);
+}
+
+function addAIBubble(text){
+  const area=document.getElementById('chat-area');
+  const row=document.createElement('div');
+  row.className='bubble-row';
+  row.innerHTML=`<div class="avatar ai">🤖</div><div class="bubble ai">${text.replace(/\n/g,'<br>')}</div>`;
+  area.appendChild(row);
+  row.scrollIntoView({behavior:'smooth',block:'end'});
+}
+
+function addUserBubble(text){
+  const area=document.getElementById('chat-area');
+  const row=document.createElement('div');
+  row.className='bubble-row user';
+  row.innerHTML=`<div class="avatar user">👤</div><div class="bubble user">${text}</div>`;
+  area.appendChild(row);
+  row.scrollIntoView({behavior:'smooth',block:'end'});
+}
+
+function showChoices(choices,idx){
+  const inputArea=document.getElementById('input-area');
+  inputArea.innerHTML='';
+  const wrap=document.createElement('div');
+  wrap.className='choices';
+  choices.forEach(c=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="choice-icon">${c.icon}</span><span><span>${c.label}</span><span class="choice-desc">${c.desc}</span></span>`;
+    btn.onclick=()=>{
+      answers[questions[idx].id]=c.value;
+      document.getElementById('input-area').innerHTML='';
+      addUserBubble(c.icon+' '+c.label);
+      step=idx+1;
+      setTimeout(()=>showQuestion(step),500);
+    };
+    wrap.appendChild(btn);
+  });
+  inputArea.appendChild(wrap);
+}
+
+function updateProgress(idx){
+  const pct=Math.round((idx/questions.length)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-num').textContent=idx+' / '+questions.length;
+  document.getElementById('progress-text').textContent=idx===0?'診断スタート':`質問 ${idx} / ${questions.length} 完了`;
+}
+
+async function showLoading(){
+  document.getElementById('input-area').innerHTML='';
+  document.getElementById('progress-wrap').style.display='none';
+  addTyping(()=>{
+    addAIBubble('ありがとうございます！\nご回答をもとに、あなたに最適なAIツールを探しています✨\n少しだけお待ちください...');
+    setTimeout(()=>{document.getElementById('loading-wrap').style.display='block';callAPI();},600);
+  });
+}
+
+async function callAPI(){
+  const prompt=`あなたはAIツールの専門家です。以下のユーザー情報をもとに最適なAIツールを3つ提案してください。
+
+【ユーザー情報】
+- 職業・状況: ${answers.situation}
+- 困っていること: ${answers.pain}
+- 達成したい目標: ${answers.goal}
+
+以下のJSON形式のみで回答（コードブロック不要）:
+{
+  "user_type": "このユーザーのタイプ名（例：文章効率化を求める会社員）",
+  "tagline": "このユーザーへの励ましの一言（30字以内）",
+  "tools": [
+    {
+      "name": "ツール名（実在する有名ツール）",
+      "icon": "絵文字1文字",
+      "tag": "無料あり",
+      "desc": "このツールで何ができるか（2文・わかりやすく）",
+      "use_case": "このユーザーの具体的な使い方（例えば〜から始める。1〜2文）",
+      "url": "実際の公式URL",
+      "cta": "無料で試してみる"
+    },
+    {},
+    {}
+  ],
+  "first_step": "明日からできる最初の一歩（具体的・50字以内）"
+}
+
+toolsは必ず3つ。urlは正確な公式URL。日本語で回答。`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content.map(i=>i.text||'').join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    showResult(parsed);
+  }catch(e){
+    console.error(e);
+    document.getElementById('loading-wrap').style.display='none';
+    document.getElementById('error-box').style.display='block';
+  }
+}
+
+function showResult(data){
+  document.getElementById('loading-wrap').style.display='none';
+  updateProgress(3);
+  document.getElementById('progress-text').textContent='診断完了！';
+  document.getElementById('progress-num').textContent='3 / 3';
+  document.getElementById('progress-fill').style.width='100%';
+
+  const section=document.getElementById('result-section');
+  section.style.display='block';
+  section.innerHTML=`
+    <div class="result-header">
+      <div class="result-label">🎉 あなたの診断結果</div>
+      <div class="result-type">${data.user_type}</div>
+      <div class="result-desc">${data.tagline}</div>
+    </div>
+
+    <div class="tools-title">🛠 おすすめAIツール TOP3</div>
+
+    ${data.tools.map(t=>`
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">${t.icon}</div>
+        <div><div class="tool-name">${t.name}</div></div>
+        <div class="tool-tag ${t.tag==='無料あり'?'free':'paid'}">${t.tag}</div>
+      </div>
+      <div class="tool-desc">${t.desc}</div>
+      <div class="tool-use">💡 ${t.use_case}</div>
+      <a class="tool-cta" href="${t.url}" target="_blank" rel="noopener">${t.cta} →</a>
+    </div>
+    `).join('')}
+
+    <hr class="section-divider">
+    <div class="section-title">🚀 最初の一歩</div>
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content"><h3>今日やること</h3><p>${data.first_step}</p></div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content"><h3>まず無料プランで試す</h3><p>ほとんどのAIツールは無料で始められます。お金をかけずに試して、使えそうなら有料プランを検討しましょう。</p></div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-content"><h3>1週間続けてみる</h3><p>最初はぎこちなくて当然。1週間使い続けると、AIがどれだけ役立つかが実感できます。</p></div>
+    </div>
+
+    <hr class="section-divider">
+    <div style="background:var(--orange-light);border-radius:16px;padding:20px 24px;border:1px solid #fdd5b5;">
+      <div style="font-weight:700;margin-bottom:8px;color:var(--orange);">📢 もっと詳しく知りたい方へ</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:16px;">AIツールの活用方法・最新情報を定期的にお届けします。詳しい使い方ガイドも随時追加中！</div>
+      <a class="tool-cta orange" href="https://note.com" target="_blank" rel="noopener">詳しい活用ガイドを読む →</a>
+    </div>
+  `;
+  section.scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('reset-btn').style.display='block';
+}
+
+function resetAll(){
+  step=0;answers={};isAnimating=false;
+  document.getElementById('chat-area').innerHTML='';
+  document.getElementById('input-area').innerHTML='';
+  document.getElementById('result-section').style.display='none';
+  document.getElementById('result-section').innerHTML='';
+  document.getElementById('loading-wrap').style.display='none';
+  document.getElementById('error-box').style.display='none';
+  document.getElementById('progress-wrap').style.display='block';
+  document.getElementById('reset-btn').style.display='none';
+  showQuestion(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
