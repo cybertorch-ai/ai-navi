@@ -335,13 +335,23 @@ toolsは必ず3つ。urlは正確な公式URL。日本語で回答。`;
       })
     });
     const data=await res.json();
+    if(!res.ok){
+      console.error('API Error:',res.status,JSON.stringify(data));
+      throw new Error('API Error '+res.status+': '+JSON.stringify(data));
+    }
+    if(!data.content||!Array.isArray(data.content)){
+      console.error('Unexpected response:',JSON.stringify(data));
+      throw new Error('レスポンス異常: '+JSON.stringify(data));
+    }
     const text=data.content.map(i=>i.text||'').join('');
     const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
     showResult(parsed);
   }catch(e){
-    console.error(e);
+    console.error('callAPI failed:',e);
+    const box=document.getElementById('error-box');
+    box.textContent='エラー: '+e.message;
     document.getElementById('loading-wrap').style.display='none';
-    document.getElementById('error-box').style.display='block';
+    box.style.display='block';
   }
 }
 
