@@ -168,6 +168,12 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:var(--
 </div>
 
 <script>
+// ======================================================
+// ★ここを変更：Cloudflare WorkersのURLを貼り付ける
+// 例: 'https://ai-navi-proxy.yourname.workers.dev'
+// ======================================================
+const WORKER_URL = 'https://dark-thunder-126a.cyber-torch-ai.workers.dev/';
+
 const questions = [
   {
     id:'situation',
@@ -319,10 +325,14 @@ async function callAPI(){
 toolsは必ず3つ。urlは正確な公式URL。日本語で回答。`;
 
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch(WORKER_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
     });
     const data=await res.json();
     const text=data.content.map(i=>i.text||'').join('');
@@ -337,10 +347,10 @@ toolsは必ず3つ。urlは正確な公式URL。日本語で回答。`;
 
 function showResult(data){
   document.getElementById('loading-wrap').style.display='none';
-  updateProgress(3);
   document.getElementById('progress-text').textContent='診断完了！';
   document.getElementById('progress-num').textContent='3 / 3';
   document.getElementById('progress-fill').style.width='100%';
+  document.getElementById('progress-wrap').style.display='block';
 
   const section=document.getElementById('result-section');
   section.style.display='block';
