@@ -171,8 +171,9 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:var(--
 // ======================================================
 // ★ここを変更：Cloudflare WorkersのURLを貼り付ける
 // 例: 'https://ai-navi-proxy.yourname.workers.dev'
+// ※APIキーはCloudflare Workers側で管理するため、ここには書かない
 // ======================================================
-const WORKER_URL = 'https://dark-thunder-126a.cyber-torch-ai.workers.dev/';
+const WORKER_URL = 'https://dark-thunder-126a.cyber-torch-ai.workers.dev';
 
 const questions = [
   {
@@ -325,13 +326,13 @@ async function callAPI(){
 toolsは必ず3つ。urlは正確な公式URL。日本語で回答。`;
 
   try{
+    // WorkersにGemini形式のbodyを送る
     const res=await fetch(WORKER_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.7,maxOutputTokens:1500}
       })
     });
     const data=await res.json();
@@ -339,11 +340,8 @@ toolsは必ず3つ。urlは正確な公式URL。日本語で回答。`;
       console.error('API Error:',res.status,JSON.stringify(data));
       throw new Error('API Error '+res.status+': '+JSON.stringify(data));
     }
-    if(!data.content||!Array.isArray(data.content)){
-      console.error('Unexpected response:',JSON.stringify(data));
-      throw new Error('レスポンス異常: '+JSON.stringify(data));
-    }
-    const text=data.content.map(i=>i.text||'').join('');
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    if(!text) throw new Error('レスポンスが空です: '+JSON.stringify(data));
     const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
     showResult(parsed);
   }catch(e){
